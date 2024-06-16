@@ -62,7 +62,7 @@ class Proxy:
             #print(f"Proxy {proxy['addr']} is working. Response: {response.json()}")
             return proxy
         except requests.RequestException as e:
-            # print(f"Proxy {proxy['addr']} failed. Error: {e}")
+            print(f"Proxy {proxy['addr']} failed. Error: {e}")
             return None
 
     def check_proxies_concurrently(self, proxy_list, max_workers=20):
