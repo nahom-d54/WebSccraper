@@ -59,6 +59,7 @@ class Proxy:
         try:
             response = requests.get(test_url, proxies=proxies, timeout=10, verify=False)
             response.raise_for_status()
+            proxy['timeout'] = response.elapsed.seconds
             #print(f"Proxy {proxy['addr']} is working. Response: {response.json()}")
             return proxy
         except requests.RequestException as e:
@@ -85,7 +86,7 @@ class Proxy:
         return working_proxies
     def save_proxies(self):
         with open(self.proxy_file, 'w') as f:
-            json.dump({'timestamp': datetime.now().isoformat(), 'proxies': self.proxy_list}, f)
+            json.dump({'timestamp': datetime.now().isoformat(), 'proxies': self.proxy_list, 'count': len(self.proxy_list)}, f)
 
     def load_proxies(self):
         if not os.path.exists(self.proxy_file):
