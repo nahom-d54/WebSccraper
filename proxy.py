@@ -13,7 +13,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 class Proxy:
     format = {'http': '', 'https': ''}
     
-    types = {2: 'https', 1: 'http', 4: 'socks5'}
+    types = {2: 'https', 1: 'http', 4: 'socks5', 3: 'socks4'}
 
     proxy_file = 'working_proxies.json'
     max_age_hours = 1
@@ -23,15 +23,20 @@ class Proxy:
         if self.load_proxies():
             print("Loaded proxies from file.")
         else:
-            url = "https://checkerproxy.net/api/archive/2024-06-14"
+            today = datetime.today()
+            plist = []
+            for d in range(3):
+                t = today - timedelta(days=d)
+                f = t.strftime('%Y-%m-%d')
+                url = f"https://checkerproxy.net/api/archive/{f}"
 
-            plist = requests.get(url).json()
+                plist += requests.get(url).json()
 
             # Filter out proxies with a timeout greater than 10 seconds and type 1 (http)
             self.proxy_list = list(filter(lambda item: item['type'] != 1, plist))
             
             # Check the proxies and keep only the working ones
-            self.proxy_list = self.check_proxies_concurrently(self.proxy_list)
+            self.proxy_list = self.check_proxies_concurrently(self.proxy_list, max_workers=int(len(self.proxy_list) / 10))
 
             self.save_proxies()
 
